@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Redireccionando...</title>
+  <script>
+    // Base de datos simulada
+    const redirecciones = {
+      "SERIAL001": "https://tusitio.com/landing1",
+      "SERIAL002": "https://tusitio.com/landing2",
+      "SERIAL003": "https://tusitio.com/landing3"
+      // Agrega más seriales aquí
+    };
+
+    // Obtener el parámetro ?code=SERIAL001
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+
+    // Redirigir si existe
+    if (code && redirecciones[code]) {
+      window.location.href = redirecciones[code];
+    } else {
+      document.addEventListener("DOMContentLoaded", () => {
+        document.body.innerHTML = "<h2>Serial no válido o no registrado.</h2>";
+      });
+    }
+  </script>
+</head>
+<body>
+</body>
+</html>
