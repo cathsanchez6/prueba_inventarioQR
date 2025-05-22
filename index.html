@@ -162,9 +162,30 @@
   };
 </script>
 
-<!-- Botones -->
-<button onclick="handleAuthClick()">Conectar con Google</button>
-<button onclick="guardarEnGoogleSheets()">Guardar en Google Sheets</button>
+  <button onclick="guardarEnSheets()">Guardar en Google Sheets</button>
+
+<script>
+  async function guardarEnSheets() {
+    const url = 'TU_URL_DEL_WEB_APP'; // Reemplaza con la URL del paso anterior
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        body: JSON.stringify(datosFiltrados),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const text = await response.text();
+      alert(text);
+    } catch (error) {
+      console.error(error);
+      alert('Error al guardar en Google Sheets');
+    }
+  }
+</script>
+
 
 </body>
 </html>
