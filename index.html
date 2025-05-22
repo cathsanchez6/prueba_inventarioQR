@@ -32,72 +32,73 @@
   </table>
 
   <script>
-    let datosFiltrados = [];
+  let datosFiltrados = [];
 
-    document.getElementById('fileInput').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      const reader = new FileReader();
+  document.getElementById('fileInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const reader = new FileReader();
 
-      reader.onload = function(e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheetName = workbook.SheetNames[0];
-        const sheet = workbook.Sheets[sheetName];
-        const json = XLSX.utils.sheet_to_json(sheet);
+    reader.onload = function(e) {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const json = XLSX.utils.sheet_to_json(sheet, { defval: "" }); // Solo una vez
 
-        const tbody = document.querySelector("#dataTable tbody");
-        tbody.innerHTML = "";
-        datosFiltrados = [];
+      const tbody = document.querySelector("#dataTable tbody");
+      tbody.innerHTML = "";
+      datosFiltrados = [];
 
-       const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+      json.forEach(row => {
+        const fila = {
+          OT: row["OT"]?.toString().trim(),
+          CodProd: row["CodProd"]?.toString().trim(),
+          DescProd: row["Desc Prod"]?.toString().trim(),
+          Cant: row["Cant"],
+          Und: row["Und"]?.toString().trim(),
+          Hecho: row["Hecho"]?.toString().trim()
+        };
 
-        const tbody = document.querySelector("#dataTable tbody");
-        tbody.innerHTML = "";
-        datosFiltrados = [];
-        
-        json.forEach(row => {
-          const fila = {
-            OT: row["OT"]?.toString().trim(),
-            CodProd: row["CodProd"]?.toString().trim(),
-            DescProd: row["Desc Prod"]?.toString().trim(),
-            Cant: row["Cant"],
-            Und: row["Und"]?.toString().trim(),
-            Hecho: row["Hecho"]?.toString().trim()
-          };
-        
-          // Validar que los campos clave estén presentes y que no haya desplazamientos
-          const filaValida =
-            fila.OT && fila.CodProd && fila.DescProd && fila.Cant && fila.Und &&
-            !isNaN(Number(fila.Cant)); // Asegura que Cant sea un número
-        
-          if (filaValida) {
-            datosFiltrados.push(fila);
-        
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-              <td>${fila.OT}</td>
-              <td>${fila.CodProd}</td>
-              <td>${fila.DescProd}</td>
-              <td>${fila.Cant}</td>
-              <td>${fila.Und}</td>
-              <td>${fila.Hecho}</td>
-            `;
-            tbody.appendChild(tr);
-          }
-        });
+        const filaValida =
+          fila.OT && fila.CodProd && fila.DescProd && fila.Cant && fila.Und &&
+          !isNaN(Number(fila.Cant));
 
-      };
+        if (filaValida) {
+          datosFiltrados.push(fila);
 
-      reader.readAsArrayBuffer(file);
-    });
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${fila.OT}</td>
+            <td>${fila.CodProd}</td>
+            <td>${fila.DescProd}</td>
+            <td>${fila.Cant}</td>
+            <td>${fila.Und}</td>
+            <td>${fila.Hecho}</td>
+          `;
+          tbody.appendChild(tr);
+        }
+      });
 
-    function descargarExcel() {
-      const ws = XLSX.utils.json_to_sheet(datosFiltrados);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Datos Organizados");
-      XLSX.writeFile(wb, "datos_organizados.xlsx");
-    }
-  </script>
+      // Mensaje si se eliminaron filas
+      const totalFilas = json.length;
+      const eliminadas = totalFilas - datosFiltrados.length;
+      if (eliminadas > 0) {
+        alert(`${eliminadas} fila(s) fueron omitidas por estar incompletas o mal formateadas.`);
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
+  });
+
+  function descargarExcel() {
+    const ws = XLSX.utils.json_to_sheet(datosFiltrados);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Datos Organizados");
+    XLSX.writeFile(wb, "datos_organizados.xlsx");
+  }
+</script>
+
+ 
 </body>
 </html>
 
