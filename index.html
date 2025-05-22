@@ -9,11 +9,14 @@
     table { width: 90%; margin: 20px auto; border-collapse: collapse; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
     input[type="file"] { margin-top: 20px; }
+    button { margin: 10px; padding: 10px 20px; }
   </style>
 </head>
 <body>
   <h1>Organizador de Programa de Impresión</h1>
   <input type="file" id="fileInput" accept=".xlsx, .xls" />
+  <button onclick="descargarExcel()">Descargar Excel</button>
+
   <table id="dataTable">
     <thead>
       <tr>
@@ -29,6 +32,8 @@
   </table>
 
   <script>
+    let datosFiltrados = [];
+
     document.getElementById('fileInput').addEventListener('change', function(e) {
       const file = e.target.files[0];
       const reader = new FileReader();
@@ -42,16 +47,28 @@
 
         const tbody = document.querySelector("#dataTable tbody");
         tbody.innerHTML = "";
+        datosFiltrados = [];
 
         json.forEach(row => {
+          const fila = {
+            OT: row["OT"] || "",
+            CodProd: row["CodProd"] || "",
+            DescProd: row["Desc Prod"] || "",
+            Cant: row["Cant"] || "",
+            Und: row["Und"] || "",
+            Hecho: row["Hecho"] || ""
+          };
+
+          datosFiltrados.push(fila);
+
           const tr = document.createElement("tr");
           tr.innerHTML = `
-            <td>${row["OT"] || ""}</td>
-            <td>${row["CodProd"] || ""}</td>
-            <td>${row["Desc Prod"] || ""}</td>
-            <td>${row["Cant"] || ""}</td>
-            <td>${row["Und"] || ""}</td>
-            <td>${row["Hecho"] || ""}</td>
+            <td>${fila.OT}</td>
+            <td>${fila.CodProd}</td>
+            <td>${fila.DescProd}</td>
+            <td>${fila.Cant}</td>
+            <td>${fila.Und}</td>
+            <td>${fila.Hecho}</td>
           `;
           tbody.appendChild(tr);
         });
@@ -59,6 +76,14 @@
 
       reader.readAsArrayBuffer(file);
     });
+
+    function descargarExcel() {
+      const ws = XLSX.utils.json_to_sheet(datosFiltrados);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Datos Organizados");
+      XLSX.writeFile(wb, "datos_organizados.xlsx");
+    }
   </script>
 </body>
 </html>
+
