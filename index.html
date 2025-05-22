@@ -49,29 +49,43 @@
         tbody.innerHTML = "";
         datosFiltrados = [];
 
+       const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+        const tbody = document.querySelector("#dataTable tbody");
+        tbody.innerHTML = "";
+        datosFiltrados = [];
+        
         json.forEach(row => {
           const fila = {
-            OT: row["OT"] || "",
-            CodProd: row["CodProd"] || "",
-            DescProd: row["Desc Prod"] || "",
-            Cant: row["Cant"] || "",
-            Und: row["Und"] || "",
-            Hecho: row["Hecho"] || ""
+            OT: row["OT"]?.toString().trim(),
+            CodProd: row["CodProd"]?.toString().trim(),
+            DescProd: row["Desc Prod"]?.toString().trim(),
+            Cant: row["Cant"],
+            Und: row["Und"]?.toString().trim(),
+            Hecho: row["Hecho"]?.toString().trim()
           };
-
-          datosFiltrados.push(fila);
-
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${fila.OT}</td>
-            <td>${fila.CodProd}</td>
-            <td>${fila.DescProd}</td>
-            <td>${fila.Cant}</td>
-            <td>${fila.Und}</td>
-            <td>${fila.Hecho}</td>
-          `;
-          tbody.appendChild(tr);
+        
+          // Validar que los campos clave estén presentes y que no haya desplazamientos
+          const filaValida =
+            fila.OT && fila.CodProd && fila.DescProd && fila.Cant && fila.Und &&
+            !isNaN(Number(fila.Cant)); // Asegura que Cant sea un número
+        
+          if (filaValida) {
+            datosFiltrados.push(fila);
+        
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${fila.OT}</td>
+              <td>${fila.CodProd}</td>
+              <td>${fila.DescProd}</td>
+              <td>${fila.Cant}</td>
+              <td>${fila.Und}</td>
+              <td>${fila.Hecho}</td>
+            `;
+            tbody.appendChild(tr);
+          }
         });
+
       };
 
       reader.readAsArrayBuffer(file);
